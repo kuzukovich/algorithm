@@ -2,27 +2,27 @@ package sky.pro;
 
 import java.util.Arrays;
 
-public class StringListImpl implements StringList {
-    private String[] array;
+public class IntListImpl implements IntegerList {
+
+    private Integer[] array;
     private int index = 0;
-    int size = 8;
+    int size = 1000000;
 
-
-    public StringListImpl() {
-        array = new String[size];
+    public IntListImpl() {
+        array = new Integer[size];
     }
+
 
     // Добавление элемента.
     // Вернуть добавленный элемент
     // в качестве результата выполнения.
     @Override
-    public String add(String item) {
+    public Integer add(Integer item) {
         checkNotNull(item);
         checkEnoughSize(index);
         item = array[index++];
         return item;
     }
-
 
     // Добавление элемента
     // на определенную позицию списка.
@@ -32,7 +32,7 @@ public class StringListImpl implements StringList {
     // Вернуть добавленный элемент
     // в качестве результата выполнения.
     @Override
-    public String add(int index, String item) {
+    public Integer add(int index, Integer item) {
         checkNotNull(item);
         checkIndex(index);
         checkEnoughSize(index);
@@ -49,7 +49,7 @@ public class StringListImpl implements StringList {
     // фактического количества элементов
     // или выходит за пределы массива.
     @Override
-    public String set(int index, String item) {
+    public Integer set(int index, Integer item) {
         checkNotNull(item);
         checkIndex(index);
         item = array[index];
@@ -61,7 +61,7 @@ public class StringListImpl implements StringList {
     // или исключение, если подобный
     // элемент отсутствует в списке.
     @Override
-    public String remove(String item) {
+    public Integer remove(Integer item) {
         checkNotNull(item);
         checkElementExist(item);
         int index = indexOf(item);
@@ -81,9 +81,9 @@ public class StringListImpl implements StringList {
     // или исключение, если подобный
     // элемент отсутствует в списке.
     @Override
-    public String remove(int index) {
+    public Integer remove(int index) {
         checkIndex(index);
-        String item = get(index);
+        Integer item = get(index);
         removeElement(index);
         return item;
     }
@@ -91,15 +91,10 @@ public class StringListImpl implements StringList {
     // Проверка на существование элемента.
     // Вернуть true/false;
     @Override
-    public boolean contains(String item) {
+    public boolean contains(Integer item) {
         checkNotNull(item);
         boolean result = false;
-        for (int i = 0; i < index; i++) {
-            if (array[i].equals(item)) {
-                result = true;
-                break;
-            }
-        }
+        result = containsBinary(array, item);
         return result;
     }
 
@@ -107,7 +102,7 @@ public class StringListImpl implements StringList {
     // Вернуть индекс элемента
     // или -1 в случае отсутствия.
     @Override
-    public int indexOf(String item) {
+    public int indexOf(Integer item) {
         int index = -1;
         checkNotNull(item);
         for (int i = 0; i < size; i++) {
@@ -123,7 +118,7 @@ public class StringListImpl implements StringList {
     // Вернуть индекс элемента
     // или -1 в случае отсутствия.
     @Override
-    public int lastIndexOf(String item) {
+    public int lastIndexOf(Integer item) {
         int index = -1;
         checkNotNull(item);
         for (int i = size - 1; i >= 0; i--) {
@@ -140,7 +135,7 @@ public class StringListImpl implements StringList {
     // если выходит за рамки фактического
     // количества элементов.
     @Override
-    public String get(int index) {
+    public Integer get(int index) {
         checkIndex(index);
         return array[index];
     }
@@ -148,9 +143,8 @@ public class StringListImpl implements StringList {
     // Сравнить текущий список с другим.
     // Вернуть true/false или исключение,
     // если передан null.
-
     @Override
-    public boolean equals(StringList otherList) {
+    public boolean equals(IntegerList otherList) {
         if (otherList == null) {
             return false;
         }
@@ -166,6 +160,7 @@ public class StringListImpl implements StringList {
     }
 
     // Вернуть фактическое количество элементов.
+    @Override
     public int size() {
         return index;
     }
@@ -173,6 +168,7 @@ public class StringListImpl implements StringList {
     // Вернуть true,
     // если элементов в списке нет,
     // иначе false.
+    @Override
     public boolean isEmpty() {
         return index == 0;
     }
@@ -189,10 +185,9 @@ public class StringListImpl implements StringList {
     // из строк в списке
     // и вернуть его.
     @Override
-    public String[] toArray() {
+    public Integer[] toArray() {
         return Arrays.copyOf(array, index);
     }
-
 
     private void checkIndex(int index) {
         if (index < 0 || index >= size) {
@@ -200,13 +195,13 @@ public class StringListImpl implements StringList {
         }
     }
 
-    private void checkNotNull(String item) {
+    private void checkNotNull(Integer item) {
         if (item == null) {
             throw new IllegalArgumentException("Value is not filled");
         }
     }
 
-    private void checkElementExist(String item) {
+    private void checkElementExist(Integer item) {
         if (indexOf(item) == -1) {
             throw new IllegalArgumentException("The element does not exist in the list");
         }
@@ -222,4 +217,37 @@ public class StringListImpl implements StringList {
         array = Arrays.copyOf(array, newSize);
     }
 
+    //Метод самой быстрой сортировки
+    private static void sortInsertion(Integer[] array) {
+        for (int i = 1; i < array.length; i++) {
+            int temp = array[i];
+            int j = i;
+            while (j > 0 && array[j - 1] >= temp) {
+                array[j] = array[j - 1];
+                j--;
+            }
+            array[j] = temp;
+        }
+    }
+
+    private static boolean containsBinary(Integer[] array, Integer item) {
+        sortInsertion(array);
+        int min = 0;
+        int max = array.length - 1;
+
+        while (min <= max) {
+            int mid = (min + max) / 2;
+
+            if (item == array[mid]) {
+                return true;
+            }
+
+            if (item < array[mid]) {
+                max = mid - 1;
+            } else {
+                min = mid + 1;
+            }
+        }
+        return false;
+    }
 }
