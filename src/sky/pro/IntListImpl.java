@@ -66,6 +66,7 @@ public class IntListImpl implements IntegerList {
         checkElementExist(item);
         int index = indexOf(item);
         removeElement(index);
+        checkEnoughSize(index);
         return item;
     }
 
@@ -85,6 +86,7 @@ public class IntListImpl implements IntegerList {
         checkIndex(index);
         Integer item = get(index);
         removeElement(index);
+        checkEnoughSize(index);
         return item;
     }
 
@@ -209,12 +211,18 @@ public class IntListImpl implements IntegerList {
 
     private void checkEnoughSize(int index) {
         if (index == array.length - 1) {
-            resizeArray(array.length * 2);
+            array = grow();
+        } else if (index == array.length / 2) {
+            array = resize();
         }
     }
 
-    private void resizeArray(int newSize) {
-        array = Arrays.copyOf(array, newSize);
+    private Integer[] resize() {
+        return Arrays.copyOf(array, (array.length * 2 / 3));
+    }
+
+    private Integer[] grow() {
+        return Arrays.copyOf(array, (int) (array.length * 1.5));
     }
 
     //Метод самой быстрой сортировки
@@ -229,6 +237,51 @@ public class IntListImpl implements IntegerList {
             array[j] = temp;
         }
     }
+
+    private void sort() {
+        quickSort(array, index);
+    }
+
+    private static void quickSort(Integer[] array, int index) {
+        quickSort(array, 0, index);
+
+    }
+
+    private static void quickSort(Integer[] array) {
+        quickSort(array, array.length - 1);
+
+    }
+
+    private static void quickSort(Integer[] array, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(array, begin, end);
+            quickSort(array, begin, partitionIndex - 1);
+            quickSort(array, partitionIndex + 1, end);
+        }
+    }
+
+    private static int partition(Integer[] array, int begin, int end) {
+        int pivot = array[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (array[j] <= pivot) {
+                i++;
+
+                swapElements(array, i, j);
+            }
+        }
+
+        swapElements(array, i + 1, end);
+        return i + 1;
+    }
+
+    private static void swapElements(Integer[] array, int left, int right) {
+        int temp = array[left];
+        array[left] = array[right];
+        array[right] = temp;
+    }
+
 
     private static boolean containsBinary(Integer[] array, Integer item) {
         sortInsertion(array);
